@@ -1,5 +1,7 @@
 package com.example.auth;
 
+import com.google.rpc.Code;
+import com.google.rpc.Status;
 import io.envoyproxy.envoy.config.core.v3.HeaderValue;
 import io.envoyproxy.envoy.config.core.v3.HeaderValueOption;
 import io.envoyproxy.envoy.service.auth.v3.*;
@@ -38,7 +40,7 @@ public class AuthorizationServiceImpl extends AuthorizationGrpc.AuthorizationImp
 
         try {
             String decodedCertStr = URLDecoder.decode(request.getAttributes().getSource().getCertificate(), StandardCharsets.UTF_8.toString());
-            System.out.println("Certificate => " + decodedCertStr);
+            System.out.println("Certificate => \n" + decodedCertStr);
 
             X509Certificate certificate = AuthorizationServiceImpl.getCertificate(Base64.getEncoder().encodeToString(decodedCertStr.getBytes()));
             System.out.println("Subject => " + certificate.getSubjectDN().getName());
@@ -58,7 +60,7 @@ public class AuthorizationServiceImpl extends AuthorizationGrpc.AuthorizationImp
         }
 
         DeniedHttpResponse deniedHttpResponse = DeniedHttpResponse.newBuilder().setStatus(HttpStatus.newBuilder().setCode(StatusCode.Unauthorized).build()).build();
-        CheckResponse response = CheckResponse.newBuilder().setDeniedResponse(deniedHttpResponse).build();
+        CheckResponse response = CheckResponse.newBuilder().setDeniedResponse(deniedHttpResponse).setStatus(Status.newBuilder().setCode(Code.PERMISSION_DENIED.getNumber()).build()).build();;
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
