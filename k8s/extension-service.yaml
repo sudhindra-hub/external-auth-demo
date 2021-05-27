@@ -1,0 +1,11 @@
+apiVersion: projectcontour.io/v1alpha1
+kind: ExtensionService
+metadata:
+  name: my-external-auth
+spec:
+  timeoutPolicy:
+    response: 100s
+    idle: 100s
+  services:
+  - name: my-external-auth
+    port: 8080
