@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: my-external-auth
+  name: my-external-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-external-auth
+  template:
+    metadata:
+      labels:
+        app: my-external-auth
+    spec:
+      containers:
+      - image: demo/external-auth:1.0
+        imagePullPolicy: Never
+        name: my-external-auth
+        volumeMounts:
+        - name: certs
+          mountPath: "/etc/certs"
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          secretName: my-tls-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: my-external-auth
+  name: my-external-auth
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: my-external-auth
+  sessionAffinity: None
+  type: ClusterIP
